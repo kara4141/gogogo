@@ -3,20 +3,9 @@ package main
 import (
 	"encoding/xml"
 	"fmt"
-	"html/template"
 	"io/ioutil"
 	"net/http"
 )
-
-type NewsMap struct {
-	Keyword  string
-	Location string
-}
-
-type NewsAggPage struct {
-	Title string
-	News  map[string]NewsMap
-}
 
 type Sitemapindex struct {
 	Locations []string `xml:"sitemap>loc"`
@@ -28,11 +17,12 @@ type News struct {
 	Locations []string `xml:"url>loc"`
 }
 
-func indexHandler(w http.ResponseWriter, r *http.Request) {
-	fmt.Fprintf(w, "<h1>Whoa, Go is neat!</h1>")
+type NewsMap struct {
+	Keyword  string
+	Location string
 }
 
-func newsAggHandler(w http.ResponseWriter, r *http.Request) {
+func main() {
 	var s Sitemapindex
 	var n News
 	resp, _ := http.Get("https://www.washingtonpost.com/news-sitemap-index.xml")
@@ -49,14 +39,9 @@ func newsAggHandler(w http.ResponseWriter, r *http.Request) {
 			news_map[n.Titles[idx]] = NewsMap{n.Keywords[idx], n.Locations[idx]}
 		}
 	}
-
-	p := NewsAggPage{Title: "Amazing News Aggregator", News: news_map}
-	t, _ := template.ParseFiles("newsaggtemplate.html")
-	t.Execute(w, p)
-}
-
-func main() {
-	http.HandleFunc("/", indexHandler)
-	http.HandleFunc("/agg/", newsAggHandler)
-	http.ListenAndServe(":8000", nil)
+	for idx, data := range news_map {
+		fmt.Println("\n\n\n\n\n", idx)
+		fmt.Println("\n", data.Keyword)
+		fmt.Println("\n", data.Location)
+	}
 }
